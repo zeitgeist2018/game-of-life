@@ -1,28 +1,46 @@
 window.addEventListener('load', init, false);
 let canvas, ctx, timer, cellSize, cells = [];
-const fps = 10, bgColor = '#111', color = '#FAFAFA';
+let fps = 10, minFps = 0, maxFps = 30, gridSize = 60, bgColor = '#111', color = '#FAFAFA';
+const speedSlider = document.getElementById('speed-slider');
+
+speedSlider.oninput = v => {
+    fps = v.target.value;
+    clearInterval(timer);
+    startLoop();
+}
+speedSlider.min = minFps;
+speedSlider.max = maxFps;
+speedSlider.value = fps;
 
 function init() {
     canvas = document.getElementsByTagName('canvas')[0];
     ctx = canvas.getContext('2d');
-    canvas.width = Math.round(window.innerWidth * 0.98);
-    canvas.height = Math.round(window.innerHeight * 0.98);
-    const resolution = 60;
-    const cellWidth = Math.trunc(canvas.width / resolution);
-    const cellHeight = Math.trunc(canvas.height / resolution);
-    for (let x = 0; x < resolution; x++) {
+    canvas.width = Math.round(window.innerWidth * 0.70);
+    canvas.height = Math.round(window.innerHeight * 0.70);
+    initialiseCells();
+    initGame();
+}
+
+function initialiseCells() {
+    const cellWidth = Math.ceil(((canvas.width / gridSize) / 100) * 100);
+    const cellHeight = Math.ceil(((canvas.height / gridSize) / 100) * 100);
+    for (let x = 0; x < gridSize; x++) {
         cells.push([]);
-        for (let y = 0; y < resolution; y++) {
+        for (let y = 0; y < gridSize; y++) {
             cells[x].push(false);
         }
     }
     cellSize = {x: cellWidth, y: cellHeight}
-    initGame();
 }
 
 function initGame() {
     seed();
+    startLoop();
+}
+
+function startLoop() {
     loop();
+    console.log(fps);
     timer = setInterval(loop, 1000 / fps);
 }
 
@@ -56,13 +74,6 @@ function getNeighbors(x, y) {
     const bottom = cells[y][nextX];
     const bottomRight = cells[nextY][nextX];
     const neighbors = [topLeft, top, topRight, left, right, bottomLeft, bottom, bottomRight]
-    if (x === 2 && y === 1) {
-        console.log(prevX, nextX, prevY, nextY);
-        console.log(neighbors);
-    }
-    // console.table(cells);
-    // console.log(x, y, neighbors);
-    // console.log(x, y);
     return neighbors.filter(n => n === true)
         .length
 }
@@ -74,9 +85,6 @@ function computeCells() {
         for (let cell = 0; cell < cells[row].length; cell++) {
             const neighbors = getNeighbors(cell, row);
             const old = cells[row][cell];
-            if (row === 1 && cell === 2) {
-                console.log(neighbors);
-            }
             if (old && (neighbors === 2 || neighbors === 3)) {
                 newCells[row].push(true); // Survives
             } else if (!old && neighbors === 3) {

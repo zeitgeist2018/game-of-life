@@ -5,7 +5,7 @@
     <title>Game of life</title>
     <style>
         html, body {
-            background: #000;
+            background: #333;
             padding: 0;
             margin: 0;
         }
@@ -13,13 +13,14 @@
             padding: 0;
             margin: auto;
             display: block;
-            border: 3px solid white;
         }
 
     </style>
 </head>
 <body>
-    <button onclick="loop()">Next</button>
+    <div class="controls">
+        <input type="range" min="1" max="30" id="speed-slider">
+    </div>
     <canvas></canvas>
     <script type="application/javascript" src="gol.js"></script>
 </body>
