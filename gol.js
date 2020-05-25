@@ -6,7 +6,9 @@ const speedSlider = document.getElementById('speed-slider');
 speedSlider.oninput = v => {
     fps = v.target.value;
     clearInterval(timer);
-    startLoop();
+    if (fps > 0) {
+        startLoop();
+    }
 }
 speedSlider.min = minFps;
 speedSlider.max = maxFps;
@@ -40,7 +42,6 @@ function initGame() {
 
 function startLoop() {
     loop();
-    console.log(fps);
     timer = setInterval(loop, 1000 / fps);
 }
 
