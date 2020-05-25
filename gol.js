@@ -1,6 +1,14 @@
 window.addEventListener('load', init, false);
-let canvas, ctx, timer, cellSize, cells = [];
-let fps = 10, minFps = 0, maxFps = 30, gridSize = 60, bgColor = '#111', color = '#FAFAFA';
+let canvas = document.getElementsByTagName('canvas')[0],
+    ctx = canvas.getContext('2d'),
+    fps = 1,
+    minFps = 0,
+    maxFps = 30,
+    cellSize = 10,
+    timer,
+    cells,
+    bgColor = '#111',
+    color = '#FAFAFA';
 const speedSlider = document.getElementById('speed-slider');
 
 speedSlider.oninput = v => {
@@ -14,25 +22,57 @@ speedSlider.min = minFps;
 speedSlider.max = maxFps;
 speedSlider.value = fps;
 
+function getGridPositionFromCoordinates(posX, posY) {
+    for (let row = 0; row < cells.length; row++) {
+        for (let cell = 0; cell < cells[row].length; cell++) {
+            const minX = cellSize * cell,
+                maxX = (cellSize * cell) + cellSize - 1,
+                minY = cellSize * row,
+                maxY = (cellSize * row) + cellSize - 1;
+            if (posX >= minX &&
+                posX <= maxX &&
+                posY >= minY &&
+                posY <= maxY) {
+                return {x: cell, y: row};
+            }
+        }
+    }
+}
+
+canvas.onclick = e => {
+    let x;
+    let y;
+    if (e.pageX || e.pageY) {
+        x = e.pageX;
+        y = e.pageY;
+    } else {
+        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+    x -= canvas.offsetLeft;
+    y -= canvas.offsetTop;
+    const gridClick = getGridPositionFromCoordinates(x, y);
+    cells[gridClick.y][gridClick.x] = true;
+    draw();
+}
+
 function init() {
-    canvas = document.getElementsByTagName('canvas')[0];
-    ctx = canvas.getContext('2d');
-    canvas.width = Math.round(window.innerWidth * 0.70);
-    canvas.height = Math.round(window.innerHeight * 0.70);
+    canvas.height = Math.ceil((window.innerHeight * 0.85) / 20) * 20;
+    canvas.width = Math.ceil((window.innerWidth * 0.95) / 20) * 20;
     initialiseCells();
     initGame();
 }
 
 function initialiseCells() {
-    const cellWidth = Math.ceil(((canvas.width / gridSize) / 100) * 100);
-    const cellHeight = Math.ceil(((canvas.height / gridSize) / 100) * 100);
-    for (let x = 0; x < gridSize; x++) {
+    cells = [];
+    const cols = canvas.width / cellSize;
+    const rows = canvas.height / cellSize;
+    for (let y = 0; y < rows; y++) {
         cells.push([]);
-        for (let y = 0; y < gridSize; y++) {
-            cells[x].push(false);
+        for (let x = 0; x < cols; x++) {
+            cells[y].push(false);
         }
     }
-    cellSize = {x: cellWidth, y: cellHeight}
 }
 
 function initGame() {
@@ -54,10 +94,14 @@ function seed() {
 }
 
 function loop() {
+    draw();
+    computeCells();
+}
+
+function draw(){
     drawBackground();
     drawCells();
     drawGrid();
-    computeCells();
 }
 
 function getNeighbors(x, y) {
@@ -102,20 +146,22 @@ function drawCells() {
     for (let row = 0; row < cells.length; row++) {
         for (let cell = 0; cell < cells[row].length; cell++) {
             ctx.fillStyle = cells[row][cell] === true ? color : bgColor;
-            const xPos = cellSize.x * cell;
-            const yPos = cellSize.y * row;
-            ctx.fillRect(xPos, yPos, cellSize.x, cellSize.y);
+            const xPos = cellSize * cell;
+            const yPos = cellSize * row;
+            ctx.fillRect(xPos, yPos, cellSize, cellSize);
         }
     }
 }
 
 function drawGrid() {
-    ctx.fillStyle = '#444';
-    const strokeSize = 2;
-    for (let i = 0; i < cells.length * cellSize.x; i += cellSize.x) {
+    ctx.fillStyle = '#222';
+    const strokeSize = 1;
+    // Vertical lines
+    for (let i = 0; i < cells[0].length * cellSize; i += cellSize) {
         ctx.fillRect(i, 0, strokeSize, canvas.height);
     }
-    for (let i = 0; i < cells[0].length * cellSize.y; i += cellSize.y) {
+    // Horizontal lines
+    for (let i = 0; i < cells.length * cellSize; i += cellSize) {
         ctx.fillRect(0, i, canvas.width, strokeSize);
     }
 }
