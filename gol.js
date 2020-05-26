@@ -54,6 +54,26 @@ function getGridPositionFromCoordinates(posX, posY) {
 }
 
 let drawingEnabled = false;
+canvas.ontouchstart = e => {
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent("mousedown", {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
+}
+canvas.ontouchend = e => {
+    const mouseEvent = new MouseEvent("mouseup", {});
+    canvas.dispatchEvent(mouseEvent);
+}
+canvas.ontouchmove = e => {
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent("mousemove", {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
+}
 canvas.onmousedown = e => {
     drawingEnabled = true;
 }
