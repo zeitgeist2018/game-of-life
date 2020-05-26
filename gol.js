@@ -39,21 +39,30 @@ function getGridPositionFromCoordinates(posX, posY) {
     }
 }
 
-canvas.onclick = e => {
-    let x;
-    let y;
-    if (e.pageX || e.pageY) {
-        x = e.pageX;
-        y = e.pageY;
-    } else {
-        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+let drawingEnabled = false;
+canvas.onmousedown = e => {
+    drawingEnabled = true;
+}
+canvas.onmouseup = e => {
+    drawingEnabled = false;
+}
+canvas.onmousemove = e => {
+    if (drawingEnabled) {
+        let x;
+        let y;
+        if (e.pageX || e.pageY) {
+            x = e.pageX;
+            y = e.pageY;
+        } else {
+            x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+            y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+        }
+        x -= canvas.offsetLeft;
+        y -= canvas.offsetTop;
+        const gridClick = getGridPositionFromCoordinates(x, y);
+        cells[gridClick.y][gridClick.x] = true;
+        draw();
     }
-    x -= canvas.offsetLeft;
-    y -= canvas.offsetTop;
-    const gridClick = getGridPositionFromCoordinates(x, y);
-    cells[gridClick.y][gridClick.x] = true;
-    draw();
 }
 
 function init() {
@@ -98,7 +107,7 @@ function loop() {
     computeCells();
 }
 
-function draw(){
+function draw() {
     drawBackground();
     drawCells();
     drawGrid();
