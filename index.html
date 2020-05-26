@@ -9,17 +9,45 @@
             padding: 0;
             margin: 0;
         }
+
+        .controls {
+            padding: 20px;
+            text-align: center;
+            background-color: #FAFAFA;
+        }
+
+        .input {
+            display: inline-block;
+            margin-right: 30px;
+            height: 100%;
+        }
+        .input > label {
+            display: block;
+        }
+
+        .input > button {
+            height: 30px;
+            width: 80px;
+        }
+
         canvas {
             padding: 0;
             margin: auto;
             display: block;
+            cursor: crosshair;
         }
 
     </style>
 </head>
 <body>
     <div class="controls">
-        <input type="range" min="1" max="30" id="speed-slider">
+        <div class="input">
+            <label for="speed-slider">Speed</label>
+            <input type="range" min="1" max="30" id="speed-slider">
+        </div>
+        <div class="input">
+            <button type="range" id="pause-btn">Pause</button>
+        </div>
     </div>
     <canvas></canvas>
     <script type="application/javascript" src="gol.js"></script>

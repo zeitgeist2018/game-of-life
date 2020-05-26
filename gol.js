@@ -1,7 +1,7 @@
 window.addEventListener('load', init, false);
 let canvas = document.getElementsByTagName('canvas')[0],
     ctx = canvas.getContext('2d'),
-    fps = 1,
+    fps = 6,
     minFps = 0,
     maxFps = 30,
     cellSize = 10,
@@ -14,13 +14,27 @@ const speedSlider = document.getElementById('speed-slider');
 speedSlider.oninput = v => {
     fps = v.target.value;
     clearInterval(timer);
-    if (fps > 0) {
-        startLoop();
-    }
+    startLoop();
 }
 speedSlider.min = minFps;
 speedSlider.max = maxFps;
 speedSlider.value = fps;
+
+const pauseBtn = document.getElementById('pause-btn');
+let previousFps = fps;
+pauseBtn.onclick = () => {
+    clearInterval(timer);
+    if (fps <= 0) {
+        fps = previousFps
+        pauseBtn.innerHTML = 'Pause';
+        startLoop();
+    } else {
+        previousFps = fps;
+        fps = 0;
+        pauseBtn.innerHTML = 'Resume';
+    }
+    speedSlider.value = fps;
+}
 
 function getGridPositionFromCoordinates(posX, posY) {
     for (let row = 0; row < cells.length; row++) {
@@ -91,7 +105,9 @@ function initGame() {
 
 function startLoop() {
     loop();
-    timer = setInterval(loop, 1000 / fps);
+    if (fps > 0) {
+        timer = setInterval(loop, 1000 / fps);
+    }
 }
 
 function seed() {
